@@ -1,7 +1,7 @@
 {
-  "name": "guias-bebe",
+  "name": "guiapeques-portal-final",
   "version": "1.0.0",
-  "description": "Guías de compra para padres primerizos - IDWeb Lab 07",
+  "description": "Comparador y Guías de Compra para Padres Primerizos",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
