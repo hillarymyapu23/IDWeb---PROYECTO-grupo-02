@@ -1,10 +1,12 @@
 const express = require('express');
-const authMiddleware = require('../middleware/auth');
-const ctrl = require('../controllers/fichasController');
 const router = express.Router();
+const fichasController = require('../controllers/fichasController');
+const { requireAuth } = require('../middlewares/auth');
 
-router.get('/', ctrl.listar);                          // público
-router.post('/', authMiddleware, ctrl.crear);          // solo asesor con sesión
-router.delete('/:id', authMiddleware, ctrl.eliminar);  // solo el dueño
+router.get('/', fichasController.getAllFichas);
+router.get('/:id', fichasController.getFichaById);
+router.post('/', requireAuth, fichasController.createFicha);
+router.put('/:id', requireAuth, fichasController.updateFicha);
+router.delete('/:id', requireAuth, fichasController.deleteFicha);
 
 module.exports = router;
