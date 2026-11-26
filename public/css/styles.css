@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Nunito:wght@400;600&display=swap');
+
+/* Reseteo del Box Model (Lab 02) */
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --bruma: #eef4f8;
+  --tinta: #1f3347;
+  --mantequilla: #f2c14e;
+  --menta: #cfe8dc;
+  --borde: #d5e0e8;
+}
+
+body { font-family: 'Nunito', sans-serif; background: var(--bruma); color: var(--tinta); }
+h1, h2, h3, .brand { font-family: 'Bricolage Grotesque', sans-serif; }
+.brand { font-weight: 700; }
+
+.btn-brand { background: var(--mantequilla); border-color: var(--mantequilla); color: var(--tinta); font-weight: 600; }
+.btn-brand:hover, .btn-brand:focus-visible { background: #e5b13a; border-color: #e5b13a; color: var(--tinta); }
+:focus-visible { outline: 3px solid var(--tinta); outline-offset: 2px; }
+
+/* Hero con Flexbox, mobile-first (Lab 03): columna en móvil, fila en escritorio */
+.hero { background: #fff; border-bottom: 1px solid var(--borde); }
+.hero-inner { display: flex; flex-direction: column; gap: 2rem; padding-block: 3rem; }
+.hero-texto { max-width: 34rem; }
+.hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.1; margin-bottom: 1rem; }
+.hero p { font-size: 1.1rem; line-height: 1.6; }
+.hero-etapas { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; align-content: center; }
+.hero-etapas li { background: var(--menta); padding: .5rem 1rem; border-radius: 999px; font-weight: 600; }
+@media (min-width: 992px) {
+  .hero-inner { flex-direction: row; align-items: center; justify-content: space-between; }
+  .hero-etapas { max-width: 22rem; justify-content: flex-end; }
+}
+
+/* Cards con CSS Grid auto-fit (Lab 03) */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; }
+
+.ficha { background: #fff; border: 1px solid var(--borde); border-radius: 14px; padding: 1.25rem; display: flex; flex-direction: column; gap: .5rem; }
+.ficha h3 { font-size: 1.2rem; margin: 0; }
+.ficha-cat { align-self: flex-start; background: var(--menta); border-radius: 6px; padding: .15rem .6rem; font-size: .85rem; font-weight: 600; }
+.ficha-prod { margin: 0; color: #4a6074; }
+.ficha-datos { display: flex; gap: 1.5rem; margin: .5rem 0 0; }
+.ficha-datos dt { font-size: .8rem; font-weight: 400; color: #5d7385; }
+.ficha-datos dd { margin: 0; font-weight: 700; }
+
+/* Formularios (Lab 02) */
+.auth-card { background: #fff; border: 1px solid var(--borde); border-radius: 14px; padding: 1.5rem; }
+.auth-card legend { font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.3rem; margin-bottom: 1rem; }
+.form-control:focus, .form-select:focus { border-color: var(--tinta); box-shadow: 0 0 0 .2rem rgba(242, 193, 78, .5); }
+.was-validated .form-control:invalid, .was-validated .form-select:invalid { border-color: #c0392b; }
