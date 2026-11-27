@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-hidden="true">
+<rect width="800" height="600" fill="#dde9f3"/>
+<circle cx="400" cy="300" r="255" fill="#eaf2f8"/>
+
+<ellipse cx="400" cy="528" rx="270" ry="22" fill="#1f3347" opacity=".12"/>
+<rect x="150" y="196" width="42" height="304" rx="16" fill="#d9a86c"/>
+<rect x="161" y="214" width="20" height="120" rx="9" fill="#e8c38f"/>
+<rect x="608" y="268" width="42" height="232" rx="16" fill="#d9a86c"/>
+<rect x="160" y="474" width="24" height="46" rx="8" fill="#b9824a"/><rect x="616" y="474" width="24" height="46" rx="8" fill="#b9824a"/>
+<rect x="150" y="438" width="500" height="30" rx="12" fill="#b9824a"/>
+<rect x="222" y="270" width="14" height="112" rx="7" fill="#e8c38f"/><rect x="272" y="270" width="14" height="112" rx="7" fill="#e8c38f"/><rect x="322" y="270" width="14" height="112" rx="7" fill="#e8c38f"/><rect x="372" y="270" width="14" height="112" rx="7" fill="#e8c38f"/><rect x="422" y="270" width="14" height="112" rx="7" fill="#e8c38f"/><rect x="472" y="270" width="14" height="112" rx="7" fill="#e8c38f"/><rect x="522" y="270" width="14" height="112" rx="7" fill="#e8c38f"/><rect x="572" y="270" width="14" height="112" rx="7" fill="#e8c38f"/>
+<rect x="192" y="250" width="416" height="24" rx="12" fill="#d9a86c"/>
+<rect x="192" y="378" width="416" height="64" rx="18" fill="#fff"/>
+<rect x="208" y="394" width="384" height="11" rx="5.5" fill="#b9d4e6"/>
+<path d="M250 380 C268 336 362 330 424 358 C474 380 544 348 594 380 Z" fill="#f2c14e"/>
+<path d="M300 372 C320 352 372 352 400 366" fill="none" stroke="#e5b13a" stroke-width="8" stroke-linecap="round"/>
+<circle cx="330" cy="118" r="46" fill="#f2c14e"/><circle cx="350.7" cy="108.8" r="37.72" fill="#eaf2f8"/><path d="M470 78 L476.16 93.84 L492 100 L476.16 106.16 L470 122 L463.84 106.16 L448 100 L463.84 93.84Z" fill="#fff"/><path d="M560 134 L564.48 145.52 L576 150 L564.48 154.48 L560 166 L555.52 154.48 L544 150 L555.52 145.52Z" fill="#f2c14e"/><circle cx="215" cy="140" r="8" fill="#fff"/>
+
+</svg>

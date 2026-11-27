@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-hidden="true">
+<rect width="800" height="600" fill="#f9edc4"/>
+<circle cx="400" cy="300" r="255" fill="#fcf4d9"/>
+
+<ellipse cx="410" cy="538" rx="290" ry="22" fill="#1f3347" opacity=".12"/>
+<path d="M176 236 H236" fill="none" stroke="#1f3347" stroke-width="17" stroke-linecap="round"/>
+<path d="M226 238 L262 462" fill="none" stroke="#1f3347" stroke-width="13" stroke-linecap="round"/>
+<path d="M262 462 L336 414" fill="none" stroke="#1f3347" stroke-width="13" stroke-linecap="round"/>
+<path d="M500 410 L592 482" fill="none" stroke="#1f3347" stroke-width="13" stroke-linecap="round"/>
+<path d="M300 440 L520 440 L506 468 L318 468 Z" fill="#b9d4e6" stroke="#1f3347" stroke-width="6" stroke-linejoin="round"/>
+<rect x="296" y="266" width="38" height="150" rx="19" fill="#e8836b" transform="rotate(-12 315 416)"/>
+<rect x="300" y="384" width="206" height="38" rx="19" fill="#e8836b"/>
+<rect x="480" y="372" width="30" height="62" rx="15" fill="#e8836b" transform="rotate(24 495 432)"/>
+<ellipse cx="402" cy="368" rx="72" ry="26" fill="#fff"/>
+<circle cx="362" cy="330" r="31" fill="#ffe2c9"/>
+<path d="M334 322 C338 292 386 290 392 322 Z" fill="#fff"/>
+<path d="M350 338 q6 5 12 0 M372 338 q6 5 12 0" fill="none" stroke="#1f3347" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M286 282 C280 176 366 138 432 184 C460 204 464 242 456 276 Z" fill="#f2c14e"/>
+<path d="M322 276 C318 214 352 178 392 184 M366 276 C366 228 392 198 424 204" fill="none" stroke="#e5b13a" stroke-width="8" stroke-linecap="round"/>
+<circle cx="262" cy="466" r="66" fill="#fff" stroke="#1f3347" stroke-width="15"/>
+<circle cx="262" cy="466" r="13" fill="#1f3347"/>
+<path d="M262 408 V524 M204 466 H320 M222 426 L302 506 M302 426 L222 506" stroke="#1f3347" stroke-width="4" opacity=".35"/>
+<circle cx="592" cy="482" r="48" fill="#fff" stroke="#1f3347" stroke-width="14"/>
+<circle cx="592" cy="482" r="11" fill="#1f3347"/>
+<path d="M640 176 C640 126 716 126 716 176" fill="none" stroke="#1f3347" stroke-width="9" stroke-linecap="round"/>
+<rect x="618" y="170" width="120" height="112" rx="20" fill="#fff" stroke="#1f3347" stroke-width="9"/>
+<rect x="640" y="224" width="76" height="40" rx="12" fill="#b9d4e6"/>
+<path d="M150 106 L156.72 123.28 L174 130 L156.72 136.72 L150 154 L143.28 136.72 L126 130 L143.28 123.28Z" fill="#fff"/><path d="M704 362 L709.04 374.96 L722 380 L709.04 385.04 L704 398 L698.96 385.04 L686 380 L698.96 374.96Z" fill="#f2c14e"/>
+
+</svg>

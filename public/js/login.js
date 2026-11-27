@@ -1,59 +1,38 @@
-// [Yaritza] Lógica de Inicio de Sesión y Registro (public/login.html)
-// Depende de: js/common.js (api, showAlert)
+// Ingreso y registro de asesores.
+(async function () {
+  const params = new URLSearchParams(location.search);
+  if (params.get('expirada') === '1') document.getElementById('aviso-sesion').hidden = false;
 
-const alertas = document.querySelector('#alertas');
+  const ses = await PP.api('/api/auth/sesion');
+  if (ses.ok && ses.json.data.autenticado) { location.replace('panel.html'); return; }
 
-// Si viene redirigido por sesión vencida (?expired=1), informar al usuario
-if (new URLSearchParams(window.location.search).get('expired') === '1') {
-  showAlert(alertas, 'Tu sesión ha expirado por seguridad. Vuelve a iniciar sesión.', 'warning');
-}
+  const error = (id, texto) => {
+    const el = document.getElementById(id);
+    el.textContent = texto;
+    el.classList.remove('d-none');
+  };
 
-function valido(form) {
-  if (!form.checkValidity()) {
-    form.classList.add('was-validated');
-    showAlert(alertas, 'Revisa los campos: correo válido y contraseña de al menos 8 caracteres.');
-    return false;
+  async function ingresar(email, password, destino) {
+    const r = await PP.api('/api/auth/login', { method: 'POST', body: { email, password } });
+    if (r.ok) { location.href = 'panel.html'; return; }
+    error(destino, r.json.message || 'No se pudo iniciar sesión.');
   }
-  return true;
-}
 
-document.querySelector('#form-login').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (!valido(e.target)) return;
-  try {
-    await api(
-      '/api/auth/login',
-      'POST',
-      {
-        email: document.querySelector('#login-email').value.trim(),
-        password: document.querySelector('#login-password').value
-      },
-      { redirigirEn401: false }
-    );
-    window.location.href = 'panel.html';
-  } catch (err) {
-    showAlert(alertas, err.message, 'danger');
-  }
-});
+  document.getElementById('form-login').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    document.getElementById('msg-login').classList.add('d-none');
+    if (!f.email.value || !f.password.value) return error('msg-login', 'Escribe tu correo y tu contraseña.');
+    await ingresar(f.email.value.trim(), f.password.value, 'msg-login');
+  });
 
-document.querySelector('#form-register').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (!valido(e.target)) return;
-  try {
-    await api(
-      '/api/auth/register',
-      'POST',
-      {
-        nombre: document.querySelector('#reg-nombre')?.value.trim() || 'Asesor Especialista',
-        email: document.querySelector('#reg-email').value.trim(),
-        password: document.querySelector('#reg-password').value
-      },
-      { redirigirEn401: false }
-    );
-    e.target.reset();
-    e.target.classList.remove('was-validated');
-    showAlert(alertas, 'Cuenta creada con contraseña cifrada. Ya puedes iniciar sesión.', 'success');
-  } catch (err) {
-    showAlert(alertas, err.message, 'danger');
-  }
-});
+  document.getElementById('form-registro').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    document.getElementById('msg-registro').classList.add('d-none');
+    const datos = { nombre: f.nombre.value.trim(), email: f.email.value.trim(), password: f.password.value };
+    const r = await PP.api('/api/auth/register', { method: 'POST', body: datos });
+    if (!r.ok) return error('msg-registro', r.json.message || 'No se pudo crear la cuenta.');
+    await ingresar(datos.email, datos.password, 'msg-registro');
+  });
+})();

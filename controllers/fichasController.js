@@ -1,180 +1,101 @@
-// [Lab 05 & 06] Controlador CRUD con validación estricta anti-inyección y límites
-const fs = require('fs').promises;
-const path = require('path');
+const { fichas, users, contadores } = require('../data/store');
+const { CATEGORIAS, ETAPAS } = require('../data/categorias');
+const { texto, precio: validarPrecio } = require('../middleware/validar');
 
-const FICHAS_PATH = path.join(__dirname, '..', 'data', 'fichas.json');
+const SLUGS_CATEGORIA = CATEGORIAS.map(c => c.slug);
+const SLUGS_ETAPA = ETAPAS.map(e => e.slug);
 
-const CATEGORIAS_OFICIALES = [
-  'Asientos de seguridad para autos',
-  'Camas cuna',
-  'Coches para bebés y accesorios',
-  'Cunas Infantiles',
-  'Cunas para bebes'
-];
+// Para buscar sin importar mayúsculas ni tildes: "cuna" encuentra "Cuña", "lluvia" encuentra "LLUVIA"
+const normalizar = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-const IMAGEN_POR_CATEGORIA = {
-  'Asientos de seguridad para autos': 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&w=800&q=80',
-  'Camas cuna': 'https://images.unsplash.com/photo-1522771930-78848d9293e8?auto=format&fit=crop&w=800&q=80',
-  'Coches para bebés y accesorios': 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80',
-  'Cunas Infantiles': 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
-  'Cunas para bebes': 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=800&q=80'
-};
-
-async function leerFichas() {
-  const raw = await fs.readFile(FICHAS_PATH, 'utf-8');
-  return JSON.parse(raw);
+// Lo que se muestra al público: se agrega el nombre del asesor y NO se expone userId
+function publica(f) {
+  const autor = f.userId ? users.find(u => u.id === f.userId) : null;
+  const { userId, ...resto } = f;
+  return { ...resto, asesor: autor ? autor.nombre : f.asesor };
 }
 
-async function guardarFichas(fichas) {
-  await fs.writeFile(FICHAS_PATH, JSON.stringify(fichas, null, 2));
+// Valida y normaliza el cuerpo de una ficha. Devuelve { error } o { valores }.
+function validar(body) {
+  const titulo = texto(body.titulo, 5, 80);
+  const producto = texto(body.producto, 3, 100);
+  const edad = texto(body.edad, 1, 40);
+  const descripcion = texto(body.descripcion, 10, 500);
+  const precio = validarPrecio(body.precio);
+
+  if (!SLUGS_CATEGORIA.includes(body.categoria)) return { error: 'Elige una categoría válida' };
+  if (!SLUGS_ETAPA.includes(body.etapa)) return { error: 'Elige una etapa válida' };
+  if (!titulo) return { error: 'El título debe tener entre 5 y 80 caracteres' };
+  if (!producto) return { error: 'El producto debe tener entre 3 y 100 caracteres' };
+  if (!precio) return { error: 'El precio debe ser un número mayor que 0' };
+  if (!edad) return { error: 'Indica la edad recomendada (hasta 40 caracteres)' };
+  if (!descripcion) return { error: 'La descripción debe tener entre 10 y 500 caracteres' };
+
+  return { valores: { categoria: body.categoria, etapa: body.etapa, titulo, producto, precio, edad, descripcion } };
 }
 
-// Función de validación rigurosa de payload
-function validarDatosFicha(body) {
-  const { titulo, categoria, producto, precio, edadRecomendada, descripcion, imagen } = body;
+// GET /api/fichas?categoria=&etapa=&q=&orden=&ids=&limit=   (público)
+exports.listar = (req, res) => {
+  const { categoria, etapa, q, orden, ids, limit } = req.query;
+  let lista = fichas.slice();
 
-  if (typeof titulo !== 'string' || titulo.trim().length < 5 || titulo.trim().length > 120) {
-    return 'El título debe ser un texto válido entre 5 y 120 caracteres.';
+  if (typeof categoria === 'string' && categoria) lista = lista.filter(f => f.categoria === categoria);
+  if (typeof etapa === 'string' && etapa) lista = lista.filter(f => f.etapa === etapa);
+  if (typeof ids === 'string' && ids) {
+    const set = new Set(ids.split(',').map(Number).filter(Number.isInteger));
+    lista = lista.filter(f => set.has(f.id));
   }
-  if (typeof categoria !== 'string' || !CATEGORIAS_OFICIALES.includes(categoria)) {
-    return 'Debe seleccionar una de las 5 categorías oficiales.';
-  }
-  if (typeof producto !== 'string' || producto.trim().length < 3 || producto.trim().length > 100) {
-    return 'El nombre del producto debe tener entre 3 y 100 caracteres.';
-  }
-  if (typeof edadRecomendada !== 'string' || edadRecomendada.trim().length < 3 || edadRecomendada.trim().length > 60) {
-    return 'La edad recomendada debe tener entre 3 y 60 caracteres.';
-  }
-  if (typeof descripcion !== 'string' || descripcion.trim().length < 10 || descripcion.trim().length > 500) {
-    return 'La descripción debe tener entre 10 y 500 caracteres.';
+  if (typeof q === 'string' && q.trim()) {
+    const t = normalizar(q.trim());
+    lista = lista.filter(f => normalizar([f.titulo, f.producto, f.descripcion, f.edad].join(' ')).includes(t));
   }
 
-  // Bloquea precios como "1e999" (Infinity), NaN, negativos o mayores a 50,000
-  const precioNum = Number(precio);
-  if (typeof precio === 'object' || !Number.isFinite(precioNum) || precioNum <= 0 || precioNum > 50000) {
-    return 'El precio debe ser un número válido mayor a S/ 0 y menor a S/ 50,000.';
-  }
+  if (orden === 'precio-asc') lista.sort((a, b) => a.precio - b.precio);
+  else if (orden === 'precio-desc') lista.sort((a, b) => b.precio - a.precio);
+  else lista.sort((a, b) => b.id - a.id); // recientes
 
-  if (imagen !== undefined && imagen !== '' && typeof imagen !== 'string') {
-    return 'La URL de la imagen debe ser texto válido.';
-  }
-
-  return null;
-}
-
-exports.getAllFichas = async (req, res, next) => {
-  try {
-    let fichas = await leerFichas();
-    const { categoria } = req.query;
-
-    if (categoria && categoria !== 'Todas') {
-      fichas = fichas.filter((f) => f.categoria === categoria);
-    }
-
-    res.status(200).json({ status: 'success', results: fichas.length, data: fichas });
-  } catch (err) {
-    next(err);
-  }
+  const total = lista.length;
+  const tope = Math.min(Math.max(parseInt(limit, 10) || total, 1), 100);
+  res.status(200).json({ status: 'success', total, data: lista.slice(0, tope).map(publica) });
 };
 
-exports.getFichaById = async (req, res, next) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    if (Number.isNaN(id)) return res.status(400).json({ status: 'fail', message: 'ID inválido.' });
-
-    const fichas = await leerFichas();
-    const ficha = fichas.find((f) => f.id === id);
-
-    if (!ficha) return res.status(404).json({ status: 'fail', message: 'Ficha no encontrada.' });
-    res.status(200).json({ status: 'success', data: ficha });
-  } catch (err) {
-    next(err);
-  }
+// GET /api/fichas/mias   (protegida)
+exports.mias = (req, res) => {
+  const lista = fichas.filter(f => f.userId === req.session.userId).sort((a, b) => b.id - a.id);
+  res.status(200).json({ status: 'success', total: lista.length, data: lista.map(publica) });
 };
 
-exports.createFicha = async (req, res, next) => {
-  try {
-    const errorValidacion = validarDatosFicha(req.body);
-    if (errorValidacion) {
-      return res.status(400).json({ status: 'fail', message: errorValidacion });
-    }
+// POST /api/fichas   (protegida)
+exports.crear = (req, res) => {
+  const { error, valores } = validar(req.body);
+  if (error) return res.status(400).json({ status: 'fail', message: error });
 
-    const { titulo, categoria, producto, precio, edadRecomendada, descripcion, imagen } = req.body;
-    const fichas = await leerFichas();
-
-    const nuevaFicha = {
-      id: fichas.length ? Math.max(...fichas.map((f) => f.id)) + 1 : 1,
-      titulo: titulo.trim(),
-      categoria,
-      producto: producto.trim(),
-      precio: Math.round(Number(precio) * 100) / 100,
-      edadRecomendada: edadRecomendada.trim(),
-      imagen: imagen && imagen.trim().startsWith('http') ? imagen.trim() : IMAGEN_POR_CATEGORIA[categoria],
-      descripcion: descripcion.trim(),
-      asesor: req.session.userNombre || 'Asesor Especialista'
-    };
-
-    fichas.push(nuevaFicha);
-    await guardarFichas(fichas);
-
-    res.status(201).json({ status: 'success', data: nuevaFicha });
-  } catch (err) {
-    next(err);
-  }
+  const ficha = { id: contadores.ficha++, userId: req.session.userId, ...valores, creado: new Date().toISOString() };
+  fichas.push(ficha);
+  res.status(201).json({ status: 'success', data: publica(ficha) });
 };
 
-// PUT /api/fichas/:id (Reparado y conectado correctamente)
-exports.updateFicha = async (req, res, next) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    if (Number.isNaN(id)) return res.status(400).json({ status: 'fail', message: 'ID inválido.' });
-
-    const errorValidacion = validarDatosFicha(req.body);
-    if (errorValidacion) {
-      return res.status(400).json({ status: 'fail', message: errorValidacion });
-    }
-
-    const fichas = await leerFichas();
-    const index = fichas.findIndex((f) => f.id === id);
-    if (index === -1) {
-      return res.status(404).json({ status: 'fail', message: 'Ficha no encontrada para actualizar.' });
-    }
-
-    const { titulo, categoria, producto, precio, edadRecomendada, descripcion, imagen } = req.body;
-
-    fichas[index] = {
-      ...fichas[index],
-      titulo: titulo.trim(),
-      categoria,
-      producto: producto.trim(),
-      precio: Math.round(Number(precio) * 100) / 100,
-      edadRecomendada: edadRecomendada.trim(),
-      imagen: imagen && imagen.trim().startsWith('http') ? imagen.trim() : IMAGEN_POR_CATEGORIA[categoria],
-      descripcion: descripcion.trim()
-    };
-
-    await guardarFichas(fichas);
-    res.status(200).json({ status: 'success', data: fichas[index] });
-  } catch (err) {
-    next(err);
+// PUT /api/fichas/:id   (protegida, solo el autor)
+exports.actualizar = (req, res) => {
+  const ficha = fichas.find(f => f.id === Number(req.params.id));
+  if (!ficha) return res.status(404).json({ status: 'fail', message: 'Ficha no encontrada' });
+  if (ficha.userId !== req.session.userId) {
+    return res.status(403).json({ status: 'fail', message: 'Solo el autor de la ficha puede editarla' });
   }
+  const { error, valores } = validar(req.body);
+  if (error) return res.status(400).json({ status: 'fail', message: error });
+
+  Object.assign(ficha, valores, { actualizado: new Date().toISOString() });
+  res.status(200).json({ status: 'success', data: publica(ficha) });
 };
 
-exports.deleteFicha = async (req, res, next) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    if (Number.isNaN(id)) return res.status(400).json({ status: 'fail', message: 'ID inválido.' });
-
-    const fichas = await leerFichas();
-    const index = fichas.findIndex((f) => f.id === id);
-    if (index === -1) {
-      return res.status(404).json({ status: 'fail', message: 'Ficha no encontrada.' });
-    }
-
-    fichas.splice(index, 1);
-    await guardarFichas(fichas);
-    res.status(200).json({ status: 'success', message: 'Ficha eliminada correctamente.' });
-  } catch (err) {
-    next(err);
+// DELETE /api/fichas/:id   (protegida, solo el autor)
+exports.eliminar = (req, res) => {
+  const index = fichas.findIndex(f => f.id === Number(req.params.id));
+  if (index === -1) return res.status(404).json({ status: 'fail', message: 'Ficha no encontrada' });
+  if (fichas[index].userId !== req.session.userId) {
+    return res.status(403).json({ status: 'fail', message: 'Solo el autor de la ficha puede eliminarla' });
   }
+  fichas.splice(index, 1);
+  res.status(200).json({ status: 'success', message: 'Ficha eliminada' });
 };
