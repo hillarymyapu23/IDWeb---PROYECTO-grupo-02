@@ -1,12 +1,17 @@
 {
-  "name": "guiapeques-portal-final",
-  "version": "1.0.0",
-  "description": "Comparador y Guías de Compra para Padres Primerizos",
+  "name": "guias-bebe",
+  "version": "2.0.0",
+  "description": "Primeros Pasos: guías de compra para padres primerizos - Introducción al Desarrollo Web (proyecto hasta el Lab 07)",
   "main": "server.js",
   "scripts": {
+    "setup": "node scripts/crear-env.js",
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
